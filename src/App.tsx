@@ -4,7 +4,6 @@ import {Button, Card, Flex, FloatButton, notification} from "antd";
 type News = { id:number; ts:number; date:string; hash:string; text:string };
 
 import { SmileOutlined } from '@ant-design/icons';
-import Paragraph from "antd/es/typography/Paragraph";
 
 export default function App() {
     const [items, setItems] = useState<News[]>([]);
