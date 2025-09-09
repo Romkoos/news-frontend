@@ -6,8 +6,10 @@ import { fetchToday } from '../../../entities/news/api/fetchToday';
 import type { News } from '../../../entities/news/model/types';
 import { isErrorWithMessage } from '../../../shared/lib/isErrorWithMessage';
 import { NewsList } from '../../../widgets/news-list/ui/NewsList';
+import { useI18n } from '../../../shared/i18n/I18nProvider';
 
 export default function NewsTodayPage() {
+  const { t } = useI18n();
   const [items, setItems] = useState<News[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [api, contextHolder] = notification.useNotification();
@@ -53,20 +55,20 @@ export default function NewsTodayPage() {
       );
       await copyNewsTexts(items);
       api.open({
-        message: 'Copied to clipboard!',
-        description: 'The news texts have been copied to your clipboard.',
+        message: t('notif.copiedTitle'),
+        description: t('notif.copiedDesc'),
         icon: <SmileOutlined style={{ color: '#108ee9' }} />,
       });
-    } catch (e) {
+    } catch {
       // eslint-disable-next-line no-alert
-      alert('Не удалось скопировать текст в буфер обмена');
+      alert(t('copy.error'));
     }
   }
 
   return (
     <Flex gap="middle" vertical>
       {contextHolder}
-      <h2 style={{ margin: '12px 0 0 24px' }}>Last News</h2>
+      <h4 style={{ margin: '12px 0 0 24px' }}>{t('news.title')}</h4>
       <FloatButton
         onClick={handleCopy}
         style={{ color: '#108ee9' }}
@@ -75,7 +77,11 @@ export default function NewsTodayPage() {
       />
 
       <Card>
-        {err && <p style={{ color: 'crimson' }}>Ошибка: {err}</p>}
+        {err && (
+          <p style={{ color: 'crimson' }}>
+            {t('error.prefix')}: {err}
+          </p>
+        )}
         <NewsList items={items} isSmall={isSmall} onRemove={removePostById} />
       </Card>
     </Flex>

@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Button, Drawer, Flex, Spin } from 'antd';
+import { Button, Drawer, Flex, Select, Spin } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import LoginPage from '../pages/login/ui/LoginPage';
 import { useAuth } from '../shared/auth/useAuth';
 import NewsTodayPage from '../pages/news-today/ui/NewsTodayPage';
+import { useI18n } from '../shared/i18n/I18nProvider';
 
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t, lang, setLang } = useI18n();
 
   if (loading) {
     return (
@@ -44,11 +46,11 @@ export default function App() {
       >
         <Button
           type="text"
-          aria-label="Открыть меню"
+          aria-label={t('header.openMenuAria')}
           icon={<MenuOutlined />}
           onClick={() => setMenuOpen(true)}
         />
-        <div style={{ fontWeight: 500 }}>Hi, {userName}</div>
+        <div style={{ fontWeight: 500 }}>{t('header.greeting', { name: String(userName) })}</div>
       </div>
 
       {/* Sidebar Drawer */}
@@ -56,23 +58,36 @@ export default function App() {
         placement="left"
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
-        title="Menu"
+        title={t('menu.title')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 12 }}>
           <a
             href={typeof window !== 'undefined' ? window.location.pathname : '#'}
             onClick={() => setMenuOpen(false)}
           >
-            Last news
+            {t('menu.lastNews')}
           </a>
-          <Button
-            onClick={() => {
-              void logout();
-              setMenuOpen(false);
-            }}
-          >
-            Выйти
-          </Button>
+
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ color: '#888' }}>{t('menu.language')}</div>
+            <Select
+              value={lang}
+              onChange={(value) => setLang(value as 'ru' | 'en')}
+              options={[
+                { value: 'ru', label: t('menu.language.ru') },
+                { value: 'en', label: t('menu.language.en') },
+              ]}
+              style={{ width: 200 }}
+            />
+            <Button
+              onClick={() => {
+                void logout();
+                setMenuOpen(false);
+              }}
+            >
+              {t('menu.logout')}
+            </Button>
+          </div>
         </div>
       </Drawer>
 
