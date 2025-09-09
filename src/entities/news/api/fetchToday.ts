@@ -1,4 +1,4 @@
-import { News } from '../model/types';
+import type {News} from '../model/types';
 import { getApiBase } from '../../../shared/api/config';
 import { isErrorWithMessage } from '../../../shared/lib/isErrorWithMessage';
 
