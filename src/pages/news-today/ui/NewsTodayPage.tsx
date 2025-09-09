@@ -78,7 +78,7 @@ export default function NewsTodayPage() {
             badge={{ count: items.length, color: 'blue' }}
             shape="circle"
             trigger="click"
-            style={{ insetInlineEnd: 88, color: '#108ee9' }}
+            style={{  color: '#108ee9' }}
             onClick={() => setShowButtons(!showButtons)}
             icon={<CopyOutlined />}
         >
@@ -86,7 +86,7 @@ export default function NewsTodayPage() {
             <FloatButton icon={<CloudOutlined />} />
             <FloatButton
                          shape="circle"
-                         style={{ insetInlineEnd: 88, color: '#108ee9' }}
+                         style={{ color: '#108ee9' }}
                          onClick={() => handleCopy()}
                          icon={<CopyOutlined />} />
 
