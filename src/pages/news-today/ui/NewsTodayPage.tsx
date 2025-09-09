@@ -66,7 +66,7 @@ export default function NewsTodayPage() {
   return (
     <Flex gap="middle" vertical>
       {contextHolder}
-      <h2 style={{ marginLeft: '24px' }}>News Today</h2>
+      <h2 style={{ margin: '12px 0 0 24px' }}>Last News</h2>
       <FloatButton
         onClick={handleCopy}
         style={{ color: '#108ee9' }}
