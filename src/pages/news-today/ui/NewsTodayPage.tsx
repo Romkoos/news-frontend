@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, Flex, FloatButton, notification } from 'antd';
-import { CopyOutlined, SmileOutlined } from '@ant-design/icons';
+import { CopyOutlined, SmileOutlined, CheckCircleOutlined, PlusCircleOutlined, CloudOutlined} from '@ant-design/icons';
 
 import { fetchToday } from '../../../entities/news/api/fetchToday';
 import { postLastUsed } from '../../../entities/news/api/postLastUsed';
@@ -14,6 +14,7 @@ export default function NewsTodayPage() {
   const [items, setItems] = useState<News[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [api, contextHolder] = notification.useNotification();
+  const [showButtons, setShowButtons] = useState(false);
 
   // Responsive: detect small screens to make cards full width
   const [isSmall, setIsSmall] = useState<boolean>(
@@ -72,12 +73,39 @@ export default function NewsTodayPage() {
     <Flex gap="middle" vertical>
       {contextHolder}
       <h4 style={{ margin: '12px 0 0 24px' }}>{t('news.title')}</h4>
-      <FloatButton
-        onClick={handleCopy}
-        style={{ color: '#108ee9' }}
-        badge={{ count: items.length, color: 'blue' }}
-        icon={<CopyOutlined />}
-      />
+        <FloatButton.Group
+            open={showButtons}
+            badge={{ count: items.length, color: 'blue' }}
+            shape="circle"
+            trigger="click"
+            style={{ insetInlineEnd: 88, color: '#108ee9' }}
+            onClick={() => setShowButtons(!showButtons)}
+            icon={<CopyOutlined />}
+        >
+
+            <FloatButton icon={<CloudOutlined />} />
+            <FloatButton
+                         shape="circle"
+                         style={{ insetInlineEnd: 88, color: '#108ee9' }}
+                         onClick={() => handleCopy()}
+                         icon={<CopyOutlined />} />
+
+            <FloatButton
+                shape="circle"
+                style={{ insetInlineEnd: 88, color: '#108ee9' }}
+                onClick={() => console.log('clicked PlusCircleOutlined')}
+                icon={<PlusCircleOutlined /> }
+
+
+        >
+            <FloatButton
+                         shape="circle"
+                         style={{ insetInlineEnd: 88, color: '#108ee9' }}
+                         onClick={() => console.log('clicked CheckCircleOutlined')}
+                         icon={<CheckCircleOutlined />}/>
+
+            </FloatButton>
+        </FloatButton.Group>
 
       <Card>
         {err && (
