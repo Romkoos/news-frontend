@@ -3,6 +3,7 @@ import { Card, Flex, FloatButton, notification } from 'antd';
 import { CopyOutlined, SmileOutlined } from '@ant-design/icons';
 
 import { fetchToday } from '../../../entities/news/api/fetchToday';
+import { postLastUsed } from '../../../entities/news/api/postLastUsed';
 import type { News } from '../../../entities/news/model/types';
 import { isErrorWithMessage } from '../../../shared/lib/isErrorWithMessage';
 import { NewsList } from '../../../widgets/news-list/ui/NewsList';
@@ -54,6 +55,8 @@ export default function NewsTodayPage() {
         '../../../features/copy-news/lib/copyNews'
       );
       await copyNewsTexts(items);
+      // Fire-and-forget request to mark last used
+      postLastUsed().catch(() => {});
       api.open({
         message: t('notif.copiedTitle'),
         description: t('notif.copiedDesc'),
