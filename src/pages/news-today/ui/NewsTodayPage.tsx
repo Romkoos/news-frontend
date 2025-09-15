@@ -10,7 +10,9 @@ import { NewsList } from '../../../widgets/news-list/ui/NewsList';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 import {isProd} from "../../../shared/api/config.ts";
 
-export default function NewsTodayPage() {
+interface NewsTodayPageProps { onOpenEdit?: () => void }
+
+export default function NewsTodayPage({ onOpenEdit }: NewsTodayPageProps) {
   const { t } = useI18n();
   const [items, setItems] = useState<News[]>([]);
   const [err, setErr] = useState<string | null>(null);
@@ -59,7 +61,9 @@ export default function NewsTodayPage() {
       );
       await copyNewsTexts(items);
       // Fire-and-forget request to mark last used
-      prod && postLastUsed().catch(() => {});
+      if (prod) {
+        postLastUsed().catch(() => {});
+      }
 
       api.open({
         message: t('notif.copiedTitle'),
@@ -96,7 +100,7 @@ export default function NewsTodayPage() {
             <FloatButton
                 shape="circle"
                 style={{ insetInlineEnd: 88, color: '#108ee9' }}
-                onClick={() => console.log('clicked PlusCircleOutlined')}
+                onClick={() => { if (onOpenEdit) onOpenEdit(); }}
                 icon={<PlusCircleOutlined /> }
 
 

@@ -4,12 +4,14 @@ import { MenuOutlined } from '@ant-design/icons';
 import LoginPage from '../pages/login/ui/LoginPage';
 import { useAuth } from '../shared/auth/useAuth';
 import NewsTodayPage from '../pages/news-today/ui/NewsTodayPage';
+import EditDigest from '../pages/edit-digest/ui/EditDigest';
 import { useI18n } from '../shared/i18n/I18nProvider';
 
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
+  const [page, setPage] = useState<'news' | 'edit'>('news');
 
   if (loading) {
     return (
@@ -62,8 +64,12 @@ export default function App() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 12 }}>
           <a
-            href={typeof window !== 'undefined' ? window.location.pathname : '#'}
-            onClick={() => setMenuOpen(false)}
+            href={'#'}
+            onClick={(e) => {
+              e.preventDefault();
+              setPage('news');
+              setMenuOpen(false);
+            }}
           >
             {t('menu.lastNews')}
           </a>
@@ -93,7 +99,11 @@ export default function App() {
 
       {/* Main content with top padding to avoid being under header */}
       <div style={{ paddingTop: 64 }}>
-        <NewsTodayPage />
+        {page === 'news' ? (
+          <NewsTodayPage onOpenEdit={() => setPage('edit')} />
+        ) : (
+          <EditDigest onBack={() => setPage('news')} />
+        )}
       </div>
     </>
   );

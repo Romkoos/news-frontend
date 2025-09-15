@@ -25,6 +25,13 @@ const ru: Dict = {
   'copy.error': 'Не удалось скопировать текст в буфер обмена',
 
   'pages.edits': 'Правки',
+
+  // EditDigest
+  'edit.title': 'Правки дайджеста',
+  'edit.placeholder': 'Вставьте строку вида [строка1, строка2] или по одной записи на строку',
+  'edit.process': 'Обработать',
+  'edit.empty': 'Список пуст',
+  'common.back': 'Назад',
 };
 
 const en: Dict = {
@@ -47,6 +54,13 @@ const en: Dict = {
   'copy.error': 'Failed to copy text to clipboard',
 
   'pages.edits': 'Edits',
+
+  // EditDigest
+  'edit.title': 'Digest edits',
+  'edit.placeholder': 'Paste a string like [item1, item2] or one per line',
+  'edit.process': 'Process',
+  'edit.empty': 'List is empty',
+  'common.back': 'Back',
 };
 
 const DICTS: Record<Lang, Dict> = { ru, en };
