@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button, Card, Flex, Input, Space, Typography, FloatButton, notification } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseSquareOutlined, CopyOutlined } from '@ant-design/icons';
+import { Button, Card, Flex, Input, Space, Typography, FloatButton, notification, Popover } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseOutlined, CopyOutlined, MoreOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 
 const { Text } = Typography;
@@ -175,13 +175,23 @@ export default function EditDigest({ onBack }: EditDigestProps) {
                       {editingIndex === idx ? (
                           <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
                               <Button onClick={saveEdit} disabled={!draft.trim()} icon={<SaveOutlined />}></Button>
-                              <Button onClick={cancelEdit} icon={<CloseSquareOutlined />}></Button>
+                              <Button onClick={cancelEdit} icon={<CloseOutlined />}></Button>
                           </div>
                       ) : (
                           <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-                              <Button aria-label="move up" disabled={isEditing || idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
-                              <Button aria-label="move down" disabled={isEditing || idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
-                              <Button icon={<EditOutlined />} onClick={() => startEdit(idx)}></Button>
+                              <Popover
+                                  trigger="click"
+                                  placement="left"
+                                  content={
+                                      <Space direction="vertical" size={4}>
+                                          <Button aria-label="move up" disabled={isEditing || idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
+                                          <Button aria-label="move down" disabled={isEditing || idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
+                                          <Button aria-label="edit" icon={<EditOutlined />} onClick={() => startEdit(idx)} />
+                                      </Space>
+                                  }
+                              >
+                                  <Button aria-label="more actions" icon={<MoreOutlined />} />
+                              </Popover>
                               <Button aria-label="delete" disabled={isEditing} icon={<DeleteOutlined />} onClick={() => removeAt(idx)} />
                           </div>
                       )}

@@ -74,6 +74,17 @@ export default function App() {
             {t('menu.lastNews')}
           </a>
 
+            <a
+                href={'#'}
+                onClick={(e) => {
+                    e.preventDefault();
+                    setPage('edit');
+                    setMenuOpen(false);
+                }}
+            >
+                {t('edit.title')}
+            </a>
+
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ color: '#888' }}>{t('menu.language')}</div>
             <Select
