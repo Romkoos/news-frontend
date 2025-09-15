@@ -60,11 +60,6 @@ export default function NewsTodayPage({ onOpenEdit }: NewsTodayPageProps) {
         '../../../features/copy-news/lib/copyNews'
       );
       await copyNewsTexts(items);
-      // Fire-and-forget request to mark last used
-        //TODO: enable
-      // if (prod) {
-      //   postLastUsed().catch(() => {});
-      // }
 
       api.open({
         message: t('notif.copiedTitle'),

@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import { Button, Card, Flex, Input, Space, Typography, FloatButton, notification, Popover } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseOutlined, CopyOutlined, MoreOutlined } from '@ant-design/icons';
+import {
+    ArrowUpOutlined,
+    ArrowDownOutlined,
+    DeleteOutlined,
+    RollbackOutlined,
+    EditOutlined,
+    SaveOutlined,
+    CloseOutlined,
+    CopyOutlined,
+    MoreOutlined,
+    SmileOutlined
+} from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
+import {copyDigest} from "../../../features/copy-news/lib/copyDigest.ts";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -128,19 +140,25 @@ export default function EditDigest({ onBack }: EditDigestProps) {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleCopy = async () => {
-    try {
-      const text = items.join('\n\n\n');
-      await navigator.clipboard.writeText(text);
-      api.open({
-        message: t('notif.copiedTitle'),
-        description: t('notif.copiedDesc'),
-      });
-    } catch {
-      // eslint-disable-next-line no-alert
-      alert(t('copy.error'));
+    async function handleCopy() {
+        try {
+            await copyDigest(items);
+            // Fire-and-forget request to mark last used
+            //TODO: enable
+            // if (prod) {
+            //   postLastUsed().catch(() => {});
+            // }
+
+            api.open({
+                message: t('notif.copiedTitle'),
+                description: t('notif.copiedDesc'),
+                icon: <SmileOutlined style={{ color: '#108ee9' }} />,
+            });
+        } catch {
+            // eslint-disable-next-line no-alert
+            alert(t('copy.error'));
+        }
     }
-  };
 
   return (
     <Flex gap="middle" vertical style={{ padding: 16 }}>
