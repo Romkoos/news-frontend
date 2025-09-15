@@ -31,6 +31,9 @@ const ru: Dict = {
   'edit.placeholder': 'Вставьте строку вида [строка1, строка2] или по одной записи на строку',
   'edit.process': 'Обработать',
   'edit.empty': 'Список пуст',
+  'edit.item.edit': 'Редактировать',
+  'edit.item.save': 'Сохранить',
+  'edit.item.cancel': 'Отмена',
   'common.back': 'Назад',
 };
 
@@ -60,6 +63,9 @@ const en: Dict = {
   'edit.placeholder': 'Paste a string like [item1, item2] or one per line',
   'edit.process': 'Process',
   'edit.empty': 'List is empty',
+  'edit.item.edit': 'Edit',
+  'edit.item.save': 'Save',
+  'edit.item.cancel': 'Cancel',
   'common.back': 'Back',
 };
 

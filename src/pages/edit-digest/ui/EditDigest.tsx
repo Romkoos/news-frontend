@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, Flex, Input, Space, Typography } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseSquareOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 
 const { Text } = Typography;
@@ -70,13 +70,39 @@ export default function EditDigest({ onBack }: EditDigestProps) {
   const [rawInput, setRawInput] = useState('');
   const [items, setItems] = useState<string[]>([]);
   const [hidden, setHidden] = useState<boolean>(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [draft, setDraft] = useState<string>('');
 
   const isEmpty = items.length === 0;
+  const isEditing = editingIndex !== null;
 
   const handleProcess = () => {
-    setHidden(true)
+    setHidden(true);
     const arr = parseInputToArray(rawInput);
     setItems(arr);
+  };
+
+  const startEdit = (idx: number) => {
+    setEditingIndex(idx);
+    setDraft(items[idx] ?? '');
+  };
+
+  const saveEdit = () => {
+    if (editingIndex === null) return;
+    const value = draft.trim();
+    if (!value) return; // do not save empty
+    setItems((prev) => {
+      const next = prev.slice();
+      next[editingIndex] = value;
+      return next;
+    });
+    setEditingIndex(null);
+    setDraft('');
+  };
+
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setDraft('');
   };
 
   const moveUp = (idx: number) => {
@@ -111,7 +137,7 @@ export default function EditDigest({ onBack }: EditDigestProps) {
         {!hidden && <Card>
         <Flex vertical gap={12}>
           <TextArea
-            autoSize={{ minRows: 4 }}
+            autoSize={{ minRows: 4, maxRows: 30 }}
             placeholder={t('edit.placeholder')}
             value={rawInput}
             onChange={(e) => setRawInput(e.target.value)}
@@ -129,11 +155,31 @@ export default function EditDigest({ onBack }: EditDigestProps) {
           items.map((text, idx) => (
             <Card key={`${idx}-${text.slice(0, 12)}`} size="small">
               <Flex align="center" justify="space-between" gap={8}>
-                <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>
+                <div style={{ flex: 1, whiteSpace: 'pre-wrap' }}>
+                  {editingIndex === idx ? (
+                    <TextArea
+                      autoSize={{ minRows: 2 }}
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                    />
+                  ) : (
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>
+                  )}
+                </div>
                 <Space>
-                  <Button aria-label="move up" disabled={idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
-                  <Button aria-label="move down" disabled={idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
-                  <Button danger aria-label="delete" icon={<DeleteOutlined />} onClick={() => removeAt(idx)} />
+                  {editingIndex === idx ? (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                      <Button onClick={saveEdit} disabled={!draft.trim()} icon={<SaveOutlined />}></Button>
+                      <Button onClick={cancelEdit} icon={<CloseSquareOutlined />}></Button>
+                    </div>
+                  ) : (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                      <Button aria-label="move up" disabled={isEditing || idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
+                      <Button aria-label="move down" disabled={isEditing || idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
+                      <Button icon={<EditOutlined />} onClick={() => startEdit(idx)}></Button>
+                      <Button aria-label="delete" disabled={isEditing} icon={<DeleteOutlined />} onClick={() => removeAt(idx)} />
+                    </div>
+                  )}
                 </Space>
               </Flex>
             </Card>
