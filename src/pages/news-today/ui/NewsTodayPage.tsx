@@ -3,12 +3,12 @@ import { Card, Flex, FloatButton, notification } from 'antd';
 import { CopyOutlined, SmileOutlined, CheckCircleOutlined, PlusCircleOutlined, CloudOutlined} from '@ant-design/icons';
 
 import { fetchToday } from '../../../entities/news/api/fetchToday';
-import { postLastUsed } from '../../../entities/news/api/postLastUsed';
+// import { postLastUsed } from '../../../entities/news/api/postLastUsed';
 import type { News } from '../../../entities/news/model/types';
 import { isErrorWithMessage } from '../../../shared/lib/isErrorWithMessage';
 import { NewsList } from '../../../widgets/news-list/ui/NewsList';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
-import {isProd} from "../../../shared/api/config.ts";
+// import {isProd} from "../../../shared/api/config.ts";
 
 interface NewsTodayPageProps { onOpenEdit?: () => void }
 
@@ -18,7 +18,7 @@ export default function NewsTodayPage({ onOpenEdit }: NewsTodayPageProps) {
   const [err, setErr] = useState<string | null>(null);
   const [api, contextHolder] = notification.useNotification();
   const [showButtons, setShowButtons] = useState(false);
-  const prod = isProd()
+  // const prod = isProd()
 
   // Responsive: detect small screens to make cards full width
   const [isSmall, setIsSmall] = useState<boolean>(
@@ -61,9 +61,10 @@ export default function NewsTodayPage({ onOpenEdit }: NewsTodayPageProps) {
       );
       await copyNewsTexts(items);
       // Fire-and-forget request to mark last used
-      if (prod) {
-        postLastUsed().catch(() => {});
-      }
+        //TODO: enable
+      // if (prod) {
+      //   postLastUsed().catch(() => {});
+      // }
 
       api.open({
         message: t('notif.copiedTitle'),

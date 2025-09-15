@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button, Card, Flex, Input, Space, Typography } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseSquareOutlined } from '@ant-design/icons';
+import { Button, Card, Flex, Input, Space, Typography, FloatButton, notification } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined, RollbackOutlined, EditOutlined, SaveOutlined, CloseSquareOutlined, CopyOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 
 const { Text } = Typography;
@@ -72,6 +72,7 @@ export default function EditDigest({ onBack }: EditDigestProps) {
   const [hidden, setHidden] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<string>('');
+  const [api, contextHolder] = notification.useNotification();
 
   const isEmpty = items.length === 0;
   const isEditing = editingIndex !== null;
@@ -127,8 +128,23 @@ export default function EditDigest({ onBack }: EditDigestProps) {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const handleCopy = async () => {
+    try {
+      const text = items.join('\n\n\n');
+      await navigator.clipboard.writeText(text);
+      api.open({
+        message: t('notif.copiedTitle'),
+        description: t('notif.copiedDesc'),
+      });
+    } catch {
+      // eslint-disable-next-line no-alert
+      alert(t('copy.error'));
+    }
+  };
+
   return (
     <Flex gap="middle" vertical style={{ padding: 16 }}>
+      {contextHolder}
       <Space align="center" style={{ justifyContent: 'space-between' }}>
         <Typography.Title level={4} style={{ margin: 0 }}>{t('edit.title')}</Typography.Title>
         <Button onClick={onBack} icon={<RollbackOutlined />}>{t('common.back')}</Button>
@@ -148,13 +164,28 @@ export default function EditDigest({ onBack }: EditDigestProps) {
         </Flex>
       </Card>}
 
-      <Flex vertical gap={8}>
+      <Flex vertical gap={8} >
         {isEmpty ? (
           <Text type="secondary">{t('edit.empty')}</Text>
         ) : (
           items.map((text, idx) => (
             <Card key={`${idx}-${text.slice(0, 12)}`} size="small">
-              <Flex align="center" justify="space-between" gap={8}>
+              <Flex align="flex-start" gap={8}>
+                  <Space>
+                      {editingIndex === idx ? (
+                          <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                              <Button onClick={saveEdit} disabled={!draft.trim()} icon={<SaveOutlined />}></Button>
+                              <Button onClick={cancelEdit} icon={<CloseSquareOutlined />}></Button>
+                          </div>
+                      ) : (
+                          <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                              <Button aria-label="move up" disabled={isEditing || idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
+                              <Button aria-label="move down" disabled={isEditing || idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
+                              <Button icon={<EditOutlined />} onClick={() => startEdit(idx)}></Button>
+                              <Button aria-label="delete" disabled={isEditing} icon={<DeleteOutlined />} onClick={() => removeAt(idx)} />
+                          </div>
+                      )}
+                  </Space>
                 <div style={{ flex: 1, whiteSpace: 'pre-wrap' }}>
                   {editingIndex === idx ? (
                     <TextArea
@@ -166,31 +197,25 @@ export default function EditDigest({ onBack }: EditDigestProps) {
                     <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>
                   )}
                 </div>
-                <Space>
-                  {editingIndex === idx ? (
-                    <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-                      <Button onClick={saveEdit} disabled={!draft.trim()} icon={<SaveOutlined />}></Button>
-                      <Button onClick={cancelEdit} icon={<CloseSquareOutlined />}></Button>
-                    </div>
-                  ) : (
-                    <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
-                      <Button aria-label="move up" disabled={isEditing || idx === 0} icon={<ArrowUpOutlined />} onClick={() => moveUp(idx)} />
-                      <Button aria-label="move down" disabled={isEditing || idx === items.length - 1} icon={<ArrowDownOutlined />} onClick={() => moveDown(idx)} />
-                      <Button icon={<EditOutlined />} onClick={() => startEdit(idx)}></Button>
-                      <Button aria-label="delete" disabled={isEditing} icon={<DeleteOutlined />} onClick={() => removeAt(idx)} />
-                    </div>
-                  )}
-                </Space>
+
               </Flex>
             </Card>
           ))
         )}
       </Flex>
 
-      {/* Optional debug/preview of current list */}
-      {/* <Card title="Preview">
-        <pre>{preview}</pre>
-      </Card> */}
-    </Flex>
-  );
-}
+        {!isEmpty && <FloatButton
+            shape="circle"
+            style={{ color: '#108ee9' }}
+            onClick={handleCopy}
+            icon={<CopyOutlined />}
+      />}
+
+       {/* Optional debug/preview of current list */}
+       {/* <Card title="Preview">
+         <pre>{preview}</pre>
+       </Card> */}
+     </Flex>
+   );
+ }
+
