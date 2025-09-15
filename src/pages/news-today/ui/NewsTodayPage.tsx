@@ -8,6 +8,7 @@ import type { News } from '../../../entities/news/model/types';
 import { isErrorWithMessage } from '../../../shared/lib/isErrorWithMessage';
 import { NewsList } from '../../../widgets/news-list/ui/NewsList';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
+import {isProd} from "../../../shared/api/config.ts";
 
 export default function NewsTodayPage() {
   const { t } = useI18n();
@@ -15,6 +16,7 @@ export default function NewsTodayPage() {
   const [err, setErr] = useState<string | null>(null);
   const [api, contextHolder] = notification.useNotification();
   const [showButtons, setShowButtons] = useState(false);
+  const prod = isProd()
 
   // Responsive: detect small screens to make cards full width
   const [isSmall, setIsSmall] = useState<boolean>(
@@ -57,7 +59,8 @@ export default function NewsTodayPage() {
       );
       await copyNewsTexts(items);
       // Fire-and-forget request to mark last used
-      postLastUsed().catch(() => {});
+      prod && postLastUsed().catch(() => {});
+
       api.open({
         message: t('notif.copiedTitle'),
         description: t('notif.copiedDesc'),
