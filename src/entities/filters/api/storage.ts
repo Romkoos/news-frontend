@@ -1,61 +1,15 @@
-import type { Filter, FilterInput, MatchType, Settings, UUID, FilterAction } from '../model/types';
+import { http } from '../../../shared/api/http';
+import type { Filter, FilterAction, FilterInput, MatchType, Settings, UUID } from '../model/types';
 
-function uuidv4(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  // Fallback RFC4122 v4-like
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
-const LS_FILTERS = 'filters_list_v1';
-const LS_SETTINGS = 'filters_settings_v1';
-
-function readFilters(): Filter[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(LS_FILTERS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as Filter[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeFilters(filters: Filter[]) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(LS_FILTERS, JSON.stringify(filters));
-}
-
-function readSettings(): Settings {
-  if (typeof window === 'undefined') return { defaultAction: 'moderation' };
-  try {
-    const raw = window.localStorage.getItem(LS_SETTINGS);
-    if (!raw) return { defaultAction: 'moderation' };
-    const parsed = JSON.parse(raw) as Settings;
-    if (!parsed || !parsed.defaultAction) return { defaultAction: 'moderation' };
-    return parsed;
-  } catch {
-    return { defaultAction: 'moderation' };
-  }
-}
-
-function writeSettings(settings: Settings) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
-}
-
+// --- Client-side helpers (validation, matching) ---
 function isInt(n: unknown) {
   return typeof n === 'number' && Number.isInteger(n);
 }
 
 function validateRegex(pattern: string) {
   try {
+    // Unicode flag for Hebrew letters etc.
+    // eslint-disable-next-line no-new
     new RegExp(pattern, 'u');
     return true;
   } catch {
@@ -91,97 +45,63 @@ function ensureValid(input: FilterInput, existing: Filter[], selfId?: UUID) {
   }
 }
 
+// --- API-backed CRUD ---
 export async function getFilters(): Promise<Filter[]> {
-  return readFilters();
+  return http<Filter[]>('/filters', { auth: true });
 }
 
 export async function createFilter(input: FilterInput): Promise<Filter> {
-  const list = readFilters();
-  ensureValid(input, list);
-  const { matchType, active } = normalize(input);
-  const now = new Date().toISOString();
-  const item: Filter = {
-    id: uuidv4(),
+  // Validate on client to preserve error UX
+  const existing = await getFilters();
+  const payload: FilterInput = {
     keyword: input.keyword.trim(),
     action: input.action,
     priority: input.priority,
-    matchType,
-    active,
+    matchType: normalize(input).matchType,
+    active: normalize(input).active,
     notes: input.notes,
-    updatedAt: now,
   };
-  const next = [...list, item];
-  writeFilters(next);
-  return item;
+  ensureValid(payload, existing);
+  return http<Filter>('/filters', { method: 'POST', body: payload, auth: true });
 }
 
 export async function updateFilter(id: UUID, patch: Partial<FilterInput>): Promise<Filter> {
-  const list = readFilters();
-  const idx = list.findIndex(f => f.id === id);
-  if (idx === -1) throw new Error('notfound');
-  const prev = list[idx];
-  const nextCandidate: Filter = {
+  // Merge with current to validate duplicates and ranges
+  const list = await getFilters();
+  const prev = list.find(f => f.id === id);
+  if (!prev) throw new Error('notfound');
+  const merged: Filter = {
     ...prev,
     ...patch,
     matchType: patch.matchType ?? prev.matchType,
     active: patch.active ?? prev.active,
   };
-  const input: FilterInput = {
-    keyword: nextCandidate.keyword,
-    action: nextCandidate.action,
-    priority: nextCandidate.priority,
-    matchType: nextCandidate.matchType,
-    active: nextCandidate.active,
-    notes: nextCandidate.notes,
+  const inputForValidation: FilterInput = {
+    keyword: merged.keyword,
+    action: merged.action,
+    priority: merged.priority,
+    matchType: merged.matchType,
+    active: merged.active,
+    notes: merged.notes,
   };
-  ensureValid(input, list, id);
-  const updated: Filter = { ...nextCandidate, updatedAt: new Date().toISOString() };
-  const next = [...list];
-  next[idx] = updated;
-  writeFilters(next);
-  return updated;
+  ensureValid(inputForValidation, list, id);
+  return http<Filter>(`/filters/${id}`, { method: 'PATCH', body: patch, auth: true });
 }
 
 export async function deleteFilter(id: UUID): Promise<void> {
-  const list = readFilters();
-  writeFilters(list.filter(f => f.id !== id));
-}
-
-export async function bulkUpdateActive(ids: UUID[], active: boolean): Promise<void> {
-  const list = readFilters();
-  const next = list.map(f => {
-    if (!ids.includes(f.id)) return f;
-    const candidate: Filter = { ...f, active };
-    // Only check duplicate if activating
-    if (active) {
-      ensureValid({
-        keyword: candidate.keyword,
-        action: candidate.action,
-        priority: candidate.priority,
-        matchType: candidate.matchType,
-        active: candidate.active,
-        notes: candidate.notes,
-      }, list, candidate.id);
-    }
-    return { ...candidate, updatedAt: new Date().toISOString() };
-  });
-  writeFilters(next);
-}
-
-export async function bulkDelete(ids: UUID[]): Promise<void> {
-  const list = readFilters();
-  writeFilters(list.filter(f => !ids.includes(f.id)));
+  await http<void>(`/filters/${id}`, { method: 'DELETE', auth: true });
 }
 
 export async function getSettings(): Promise<Settings> {
-  return readSettings();
+  try {
+    return await http<Settings>('/filters/settings', { auth: true });
+  } catch {
+    return { defaultAction: 'moderation' };
+  }
 }
 
 export async function updateSettings(patch: Partial<Settings>): Promise<Settings> {
-  const curr = readSettings();
-  const next = { ...curr, ...patch };
-  writeSettings(next);
-  return next;
+  return http<Settings>('/filters/settings', { method: 'PATCH', body: patch, auth: true });
 }
 
 export function testMatch(text: string, keyword: string, matchType: MatchType | undefined): boolean {
@@ -198,11 +118,12 @@ export function testMatch(text: string, keyword: string, matchType: MatchType | 
 }
 
 export async function resolveAction(text: string): Promise<FilterAction> {
-  const list = readFilters();
+  // Compute based on server data
+  const list = await getFilters();
   const active = list.filter(f => f.active ?? true);
   const matches = active.filter(f => testMatch(text, f.keyword, f.matchType));
   if (matches.length === 0) {
-    const settings = readSettings();
+    const settings = await getSettings();
     return settings.defaultAction;
   }
   const top = matches.reduce((acc, curr) => (curr.priority > acc.priority ? curr : acc));
