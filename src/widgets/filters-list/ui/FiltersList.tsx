@@ -1,5 +1,5 @@
 import { Flex, Switch, Space, Tag, Card, Button } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 import type { Filter, FilterAction } from '../../../entities/filters/model/types';
 
@@ -63,11 +63,18 @@ export function FiltersList({ items, onToggleActive, onEdit, onDelete }: Filters
             {/* Row 2: main keyword, larger */}
             <div style={{ fontWeight: 600, fontSize: 18, lineHeight: 1.4, wordBreak: 'break-word' }}>{r.keyword}</div>
 
+            {/* Notes (optional) */}
+            {typeof r.notes === 'string' && r.notes.trim() !== '' && (
+              <div style={{ color: '#8c8c8c', fontSize: 12, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <FileTextOutlined style={{ color: '#8c8c8c', marginTop: 2 }} />
+                <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{r.notes}</span>
+              </div>
+            )}
+
             {/* Row 3: tags with indent */}
             <div>
               <Space size={8} wrap>
                 <Tag color={actionColor(r.action)}>{t(`filters.action.${r.action}`)}</Tag>
-                <Tag>{r.matchType === 'regex' ? t('filters.match.regex') : t('filters.match.substring')}</Tag>
                 <Tag color="blue">{formatDate(r.updatedAt)}</Tag>
               </Space>
             </div>
