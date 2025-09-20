@@ -86,13 +86,20 @@ export default function FiltersPage() {
 
       <FiltersList
         items={filtered}
-        onToggleActive={async (id, active) => {
-          try {
-            await updateFilter(id, { active });
-            void load();
-          } catch (err) {
-            message.error(mapFilterError(t, err));
-          }
+        onToggleActive={(id, active) => {
+          // Optimistic UI update
+          setItems((prev) => {
+            const snapshot = prev;
+            const next = prev.map(f => f.id === id ? { ...f, active, updatedAt: new Date().toISOString() } : f);
+            // Fire-and-forget server update, rollback on error
+            void updateFilter(id, { active })
+              .then(() => { void load(); })
+              .catch((err) => {
+                message.error(mapFilterError(t, err));
+                setItems(snapshot);
+              });
+            return next;
+          });
         }}
         onEdit={(item) => {
           setEditing(item);
