@@ -40,8 +40,8 @@ export default function SettingsPage() {
     <Flex vertical gap={12} style={{ padding: 16 }}>
       <Title level={4} style={{ margin: 0 }}>{t('settings.title')}</Title>
       <Card loading={loading}>
+        <Text strong>{t('settings.defaultAction')}</Text>
         <Space align="center" size={12}>
-          <Text strong>{t('settings.defaultAction')}</Text>
           <Select
             value={defaultAction}
             onChange={(v) => setDefaultAction(v as FilterAction)}
