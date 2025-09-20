@@ -1,9 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Flex, Input, Modal, Popconfirm, Radio, Segmented, Select, Space, Switch, Table, Tag, Typography, InputNumber, message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import {
+    Button,
+    Card,
+    Flex,
+    Input,
+    Modal,
+    Popconfirm,
+    Radio,
+    Segmented,
+    Select,
+    Space,
+    Switch,
+    Tag,
+    Typography,
+    InputNumber,
+    message
+} from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
-import type { Filter, FilterAction, MatchType, UUID } from '../../../entities/filters/model/types';
-import { bulkDelete, bulkUpdateActive, createFilter, deleteFilter, getFilters, testMatch, updateFilter } from '../../../entities/filters/api/storage';
+import type { Filter, FilterAction, MatchType } from '../../../entities/filters/model/types';
+import { createFilter, deleteFilter, getFilters, testMatch, updateFilter } from '../../../entities/filters/api/storage';
 
 const { Title, Text } = Typography;
 
@@ -101,7 +117,7 @@ function FilterModal({ open, initial, onCancel, onSaved }: FilterModalProps) {
           />
         </div>
         <div>
-          <Text strong>{t('modal.priority')}</Text>
+          <Text strong style={{marginRight: '10px'}}>{t('modal.priority')}</Text>
           <InputNumber min={1} max={1000} value={priority} onChange={(v) => setPriority(Number(v ?? 1))} />
         </div>
         <div>
@@ -116,7 +132,7 @@ function FilterModal({ open, initial, onCancel, onSaved }: FilterModalProps) {
           />
         </div>
         <div>
-          <Text strong>{t('modal.active')}</Text>
+          <Text strong style={{marginRight: '10px'}}>{t('modal.active')}</Text>
           <Switch checked={active} onChange={setActive} />
         </div>
         <div>
@@ -151,15 +167,22 @@ function FilterModal({ open, initial, onCancel, onSaved }: FilterModalProps) {
 }
 
 export default function FiltersPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [items, setItems] = useState<Filter[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState('');
   const [actionFilter, setActionFilter] = useState<'all' | FilterAction>('all');
   const [onlyActive, setOnlyActive] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Filter | undefined>(undefined);
+  // Responsive: detect small screens (phones)
+  const [isSmall, setIsSmall] = useState<boolean>(
+    typeof window !== 'undefined' ? window.innerWidth <= 576 : false
+  );
+  useEffect(() => {
+    const onResize = () => setIsSmall(window.innerWidth <= 576);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   function mapErr(e: unknown): string {
     const s = String(e);
@@ -171,13 +194,8 @@ export default function FiltersPage() {
   }
 
   async function load() {
-    setLoading(true);
-    try {
-      const list = await getFilters();
-      setItems(list);
-    } finally {
-      setLoading(false);
-    }
+    const list = await getFilters();
+    setItems(list);
   }
 
   useEffect(() => {
@@ -193,89 +211,19 @@ export default function FiltersPage() {
     });
   }, [items, search, actionFilter, onlyActive]);
 
-  const columns: ColumnsType<Filter> = [
-    { title: t('filters.columns.keyword'), dataIndex: 'keyword', key: 'keyword' },
-    {
-      title: t('filters.columns.action'), dataIndex: 'action', key: 'action',
-      render: (_, r) => <Tag color={actionColor(r.action)}>{t(`filters.action.${r.action}`)}</Tag>
-    },
-    {
-      title: t('filters.columns.priority'), dataIndex: 'priority', key: 'priority',
-      render: (_, r) => (
-        <InputNumber
-          min={1}
-          max={1000}
-          defaultValue={r.priority}
-          onBlur={async (e) => {
-            const v = Number((e.target as HTMLInputElement).value);
-            if (Number.isNaN(v)) return;
-            try {
-              await updateFilter(r.id, { priority: v });
-              message.success(t('filters.saved'));
-              void load();
-            } catch (err) {
-              message.error(mapErr(err));
-            }
-          }}
-        />
-      )
-    },
-    {
-      title: t('filters.columns.match'), dataIndex: 'matchType', key: 'matchType',
-      render: (_, r) => r.matchType === 'regex' ? t('filters.match.regex') : t('filters.match.substring')
-    },
-    {
-      title: t('filters.columns.active'), dataIndex: 'active', key: 'active',
-      render: (_, r) => (
-        <Switch
-          checked={r.active ?? true}
-          onChange={async (checked) => {
-            try {
-              await updateFilter(r.id, { active: checked });
-              void load();
-            } catch (err) {
-              message.error(mapErr(err));
-            }
-          }}
-        />
-      )
-    },
-    { title: t('filters.columns.updated'), dataIndex: 'updatedAt', key: 'updatedAt' },
-    {
-      title: t('filters.columns.actions'), key: 'actions',
-      render: (_, r) => (
-        <Space>
-          <Button size="small" onClick={() => { setEditing(r); setModalOpen(true); }}>{t('filters.edit')}</Button>
-          <Popconfirm title={t('filters.confirmDelete')} onConfirm={async () => { await deleteFilter(r.id); void load(); }}>
-            <Button size="small" danger>{t('filters.delete')}</Button>
-          </Popconfirm>
-        </Space>
-      )
-    }
-  ];
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
-  };
-
-  async function bulkActivate(active: boolean) {
+  function formatDate(iso: string): string {
+    const d = new Date(iso);
+    const locale = lang === 'ru' ? 'ru-RU' : 'en-US';
     try {
-      await bulkUpdateActive(selectedRowKeys as UUID[], active);
-      setSelectedRowKeys([]);
-      void load();
-    } catch (e) {
-      message.error(mapErr(e));
-    }
-  }
-
-  async function bulkDel() {
-    try {
-      await bulkDelete(selectedRowKeys as UUID[]);
-      setSelectedRowKeys([]);
-      void load();
-    } catch (e) {
-      message.error(mapErr(e));
+      return d.toLocaleString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).replace(',', '');
+    } catch {
+      return iso;
     }
   }
 
@@ -283,16 +231,22 @@ export default function FiltersPage() {
     <Flex vertical gap={12} style={{ padding: 16 }}>
       <Space align="center" style={{ justifyContent: 'space-between' }}>
         <Title level={4} style={{ margin: 0 }}>{t('filters.title')}</Title>
-        <Button type="primary" onClick={() => { setEditing(undefined); setModalOpen(true); }}>{t('filters.add')}</Button>
+        <Button
+          type="primary"
+          aria-label={t('filters.add')}
+          title={t('filters.add')}
+          icon={<PlusOutlined />}
+          onClick={() => { setEditing(undefined); setModalOpen(true); }}
+        />
       </Space>
 
       <Card>
         <Flex gap={8} wrap>
-          <Input style={{ width: 260 }} placeholder={t('filters.search')} value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select
+          <Input style={{ width: isSmall ? '100%' : 260 }} placeholder={t('filters.search')} value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Select<'all' | FilterAction>
             value={actionFilter}
-            onChange={(v) => setActionFilter(v as any)}
-            style={{ width: 200 }}
+            onChange={(v) => setActionFilter(v)}
+            style={{ width: isSmall ? '100%' : 200 }}
             options={[
               { value: 'all', label: t('filters.action.all') },
               { value: 'publish', label: t('filters.action.publish') },
@@ -307,22 +261,51 @@ export default function FiltersPage() {
         </Flex>
       </Card>
 
-      <Card>
-        <Space style={{ marginBottom: 12 }}>
-          <Button onClick={() => bulkActivate(true)} disabled={selectedRowKeys.length === 0}>{t('filters.bulk.activate')}</Button>
-          <Button onClick={() => bulkActivate(false)} disabled={selectedRowKeys.length === 0}>{t('filters.bulk.deactivate')}</Button>
-          <Button danger onClick={bulkDel} disabled={selectedRowKeys.length === 0}>{t('filters.bulk.delete')}</Button>
-        </Space>
-        <Table
-          rowKey={(r) => r.id}
-          loading={loading}
-          dataSource={filtered}
-          columns={columns}
-          rowSelection={rowSelection}
-          pagination={{ pageSize: 10 }}
-          size="small"
-        />
-      </Card>
+      <Flex vertical gap={8}>
+        {filtered.map((r) => (
+          <Card key={r.id} size="small">
+            <Flex vertical gap={8}>
+              {/* Row 1: switch left, action buttons right */}
+              <Flex align="center" justify="space-between">
+                <Switch
+                  checked={r.active ?? true}
+                  onChange={async (checked) => {
+                    try {
+                      await updateFilter(r.id, { active: checked });
+                      void load();
+                    } catch (err) {
+                      message.error(mapErr(err));
+                    }
+                  }}
+                />
+                <Space>
+                  <Button
+                    aria-label={t('filters.edit')}
+                    title={t('filters.edit')}
+                    icon={<EditOutlined />}
+                    onClick={() => { setEditing(r); setModalOpen(true); }}
+                  />
+                  <Popconfirm title={t('filters.confirmDelete')} onConfirm={async () => { await deleteFilter(r.id); void load(); }}>
+                    <Button danger aria-label={t('filters.delete')} title={t('filters.delete')} icon={<DeleteOutlined />} />
+                  </Popconfirm>
+                </Space>
+              </Flex>
+
+              {/* Row 2: main keyword, larger */}
+              <div style={{ fontWeight: 600, fontSize: 18, lineHeight: 1.4, wordBreak: 'break-word' }}>{r.keyword}</div>
+
+              {/* Row 3: tags with indent */}
+              <div>
+                <Space size={8} wrap>
+                  <Tag color={actionColor(r.action)}>{t(`filters.action.${r.action}`)}</Tag>
+                  <Tag>{r.matchType === 'regex' ? t('filters.match.regex') : t('filters.match.substring')}</Tag>
+                  <Tag color="blue">{formatDate(r.updatedAt)}</Tag>
+                </Space>
+              </div>
+            </Flex>
+          </Card>
+        ))}
+      </Flex>
 
       {modalOpen && (
         <FilterModal
