@@ -18,6 +18,7 @@ export default function FiltersPage() {
   const [onlyActive, setOnlyActive] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Filter | undefined>(undefined);
+  const [modal, contextHolder] = Modal.useModal();
   // Responsive: detect small screens (phones)
   const [isSmall, setIsSmall] = useState<boolean>(
     typeof window !== 'undefined' ? window.innerWidth <= 576 : false
@@ -50,6 +51,7 @@ export default function FiltersPage() {
 
   return (
     <Flex vertical gap={12} style={{ padding: 16 }}>
+      {contextHolder}
       <Space align="center" style={{ justifyContent: 'space-between' }}>
         <Title level={4} style={{ margin: 0 }}>{t('filters.title')}</Title>
         <Button
@@ -97,8 +99,11 @@ export default function FiltersPage() {
           setModalOpen(true);
         }}
         onDelete={(item) => {
-          Modal.confirm({
+          modal.confirm({
             title: t('filters.confirmDelete'),
+            okText: t('common.ok'),
+            cancelText: t('common.cancel'),
+            zIndex: 1100,
             onOk: async () => {
               await deleteFilter(item.id);
               void load();

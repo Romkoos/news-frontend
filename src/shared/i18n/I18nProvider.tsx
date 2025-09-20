@@ -86,6 +86,10 @@ const ru: Dict = {
   'modal.tester.match': 'совпадает',
   'modal.tester.noMatch': 'не совпадает',
 
+    // Regex UI
+    'regex.pattern': 'Паттерн',
+    'regex.matches': 'Совпадений: {count}',
+
   // Settings
   'settings.title': 'Настройки',
   'settings.defaultAction': 'Действие по умолчанию',
@@ -175,6 +179,10 @@ const en: Dict = {
   'modal.tester.check': 'Check match',
   'modal.tester.match': 'match',
   'modal.tester.noMatch': 'no match',
+
+    // Regex UI
+    'regex.pattern': 'Pattern',
+    'regex.matches': 'Matches: {count}',
 
   // Settings
   'settings.title': 'Settings',

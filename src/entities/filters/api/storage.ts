@@ -1,5 +1,6 @@
 import { http } from '../../../shared/api/http';
 import type { Filter, FilterAction, FilterInput, MatchType, Settings, UUID } from '../model/types';
+import { parseRegexInput } from '../../../shared/regex/parse';
 
 // --- Client-side helpers (validation, matching) ---
 function isInt(n: unknown) {
@@ -108,7 +109,9 @@ export function testMatch(text: string, keyword: string, matchType: MatchType | 
   const mt = matchType ?? 'substring';
   if (mt === 'regex') {
     try {
-      const re = new RegExp(keyword, 'u');
+      // Support /pattern/flags form and default Unicode
+      const parsed = parseRegexInput(String(keyword));
+      const re = new RegExp(parsed.pattern, parsed.flags);
       return re.test(text);
     } catch {
       return false;

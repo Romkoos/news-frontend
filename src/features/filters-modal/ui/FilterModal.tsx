@@ -4,6 +4,9 @@ import { useI18n } from '../../../shared/i18n/I18nProvider';
 import type { Filter, FilterAction, MatchType } from '../../../entities/filters/model/types';
 import { createFilter, testMatch, updateFilter } from '../../../entities/filters/api/storage';
 import { mapFilterError } from '../../../entities/filters/lib/mapFilterError';
+import RegexViewer from '../../../shared/regex/RegexViewer';
+import { highlightMatches } from '../../../shared/regex/highlight';
+import type { ReactNode } from 'react';
 
 const { Text } = Typography;
 
@@ -24,6 +27,8 @@ export default function FilterModal({ open, initial, onCancel, onSaved }: Filter
   const [notes, setNotes] = useState<string>(initial?.notes ?? '');
   const [testingText, setTestingText] = useState<string>('');
   const [checkResult, setCheckResult] = useState<boolean | null>(null);
+  const [matchCount, setMatchCount] = useState<number | null>(null);
+  const [highlighted, setHighlighted] = useState<ReactNode | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -97,6 +102,15 @@ export default function FilterModal({ open, initial, onCancel, onSaved }: Filter
             ]}
           />
         </div>
+
+        {matchType === 'regex' && keyword.trim() !== '' && (
+          <div>
+            <Text strong>{t('regex.pattern')}</Text>
+            <div style={{ marginTop: 6 }}>
+              <RegexViewer input={keyword} showModeSwitch showCopy />
+            </div>
+          </div>
+        )}
         <div>
           <Text strong style={{marginRight: '10px'}}>{t('modal.active')}</Text>
           <Switch checked={active} onChange={setActive} />
@@ -116,7 +130,22 @@ export default function FilterModal({ open, initial, onCancel, onSaved }: Filter
               onChange={(e) => setTestingText(e.target.value)}
             />
             <Space align="center">
-              <Button size="small" onClick={() => setCheckResult(testMatch(testingText, keyword, matchType))}>
+              <Button
+                size="small"
+                onClick={() => {
+                  if (matchType === 'regex') {
+                    const res = highlightMatches(testingText, keyword);
+                    setMatchCount(res.count);
+                    setHighlighted(res.nodes);
+                    setCheckResult(res.count > 0);
+                  } else {
+                    const ok = testMatch(testingText, keyword, matchType);
+                    setCheckResult(ok);
+                    setMatchCount(null);
+                    setHighlighted(null);
+                  }
+                }}
+              >
                 {t('modal.tester.check')}
               </Button>
               {checkResult !== null && (
@@ -124,7 +153,13 @@ export default function FilterModal({ open, initial, onCancel, onSaved }: Filter
                   {checkResult ? t('modal.tester.match') : t('modal.tester.noMatch')}
                 </Tag>
               )}
+              {matchType === 'regex' && matchCount !== null && (
+                <Tag color="blue">{t('regex.matches', { count: matchCount })}</Tag>
+              )}
             </Space>
+            {matchType === 'regex' && highlighted && (
+              <div style={{ whiteSpace: 'pre-wrap' }}>{highlighted}</div>
+            )}
           </Flex>
         </Card>
       </Flex>

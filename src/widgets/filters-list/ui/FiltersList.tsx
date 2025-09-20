@@ -2,6 +2,7 @@ import { Flex, Switch, Space, Tag, Card, Button } from 'antd';
 import { EditOutlined, DeleteOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
 import type { Filter, FilterAction } from '../../../entities/filters/model/types';
+import RegexViewer from '../../../shared/regex/RegexViewer';
 
 function actionColor(a: FilterAction): string {
   switch (a) {
@@ -60,8 +61,14 @@ export function FiltersList({ items, onToggleActive, onEdit, onDelete }: Filters
               </Space>
             </Flex>
 
-            {/* Row 2: main keyword, larger */}
-            <div style={{ fontWeight: 600, fontSize: 18, lineHeight: 1.4, wordBreak: 'break-word' }}>{r.keyword}</div>
+            {/* Content row: keyword for substring; chips only for regex */}
+            {r.matchType === 'regex' ? (
+              <div>
+                <RegexViewer input={r.keyword} compact maxVisible={6} showModeSwitch={false} showCopy={false} />
+              </div>
+            ) : (
+              <div style={{ fontWeight: 600, fontSize: 18, lineHeight: 1.4, wordBreak: 'break-word' }}>{r.keyword}</div>
+            )}
 
             {/* Notes (optional) */}
             {typeof r.notes === 'string' && r.notes.trim() !== '' && (
