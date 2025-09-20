@@ -6,12 +6,14 @@ import { useAuth } from '../shared/auth/useAuth';
 import NewsTodayPage from '../pages/news-today/ui/NewsTodayPage';
 import EditDigest from '../pages/edit-digest/ui/EditDigest';
 import { useI18n } from '../shared/i18n/I18nProvider';
+import FiltersPage from '../pages/filters/ui/FiltersPage';
+import SettingsPage from '../pages/settings/ui/SettingsPage';
 
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
-  const [page, setPage] = useState<'news' | 'edit'>('news');
+  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'settings'>('news');
 
   if (loading) {
     return (
@@ -85,6 +87,28 @@ export default function App() {
                 {t('edit.title')}
             </a>
 
+            <a
+              href={'#'}
+              onClick={(e) => {
+                e.preventDefault();
+                setPage('filters');
+                setMenuOpen(false);
+              }}
+            >
+              {t('menu.filters')}
+            </a>
+
+            <a
+              href={'#'}
+              onClick={(e) => {
+                e.preventDefault();
+                setPage('settings');
+                setMenuOpen(false);
+              }}
+            >
+              {t('menu.settings')}
+            </a>
+
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ color: '#888' }}>{t('menu.language')}</div>
             <Select
@@ -110,10 +134,17 @@ export default function App() {
 
       {/* Main content with top padding to avoid being under header */}
       <div style={{ paddingTop: 64 }}>
-        {page === 'news' ? (
+        {page === 'news' && (
           <NewsTodayPage onOpenEdit={() => setPage('edit')} />
-        ) : (
+        )}
+        {page === 'edit' && (
           <EditDigest onBack={() => setPage('news')} />
+        )}
+        {page === 'filters' && (
+          <FiltersPage />
+        )}
+        {page === 'settings' && (
+          <SettingsPage />
         )}
       </div>
     </>

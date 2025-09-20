@@ -15,6 +15,8 @@ const ru: Dict = {
   'menu.language': 'Язык',
   'menu.language.ru': 'Русский',
   'menu.language.en': 'English',
+  'menu.filters': 'Фильтры',
+  'menu.settings': 'Настройки',
 
   'news.title': 'Последние новости',
 
@@ -35,6 +37,62 @@ const ru: Dict = {
   'edit.item.save': 'Сохранить',
   'edit.item.cancel': 'Отмена',
   'common.back': 'Назад',
+
+  // Filters
+  'filters.title': 'Фильтры',
+  'filters.add': 'Добавить',
+  'filters.search': 'Поиск по ключевому слову',
+  'filters.action': 'Действие',
+  'filters.action.publish': 'публиковать',
+  'filters.action.reject': 'отклонить',
+  'filters.action.moderation': 'на модерацию',
+  'filters.action.all': 'Все',
+  'filters.activeOnly': 'Только активные',
+  'filters.columns.keyword': 'Ключевое слово',
+  'filters.columns.action': 'Действие',
+  'filters.columns.priority': 'Приоритет',
+  'filters.columns.match': 'Совпадение',
+  'filters.columns.active': 'Активен',
+  'filters.columns.updated': 'Обновлено',
+  'filters.columns.actions': 'Действия',
+  'filters.match.substring': 'подстрока',
+  'filters.match.regex': 'регулярное выражение',
+  'filters.edit': 'Редактировать',
+  'filters.delete': 'Удалить',
+  'filters.bulk.activate': 'Активировать',
+  'filters.bulk.deactivate': 'Деактивировать',
+  'filters.bulk.delete': 'Удалить',
+  'filters.confirmDelete': 'Удалить фильтр?',
+  'filters.saved': 'Сохранено',
+  'filters.validation.keyword': 'Ключевое слово обязательно (мин. 2 символа)',
+  'filters.validation.priority': 'Приоритет 1…1000',
+  'filters.validation.duplicate': 'Дубликат активного фильтра (keyword, matchType)',
+  'filters.validation.regex': 'Некорректное регулярное выражение',
+
+  // Modal
+  'modal.title.add': 'Добавить фильтр',
+  'modal.title.edit': 'Редактировать фильтр',
+  'modal.keyword': 'Ключевое слово',
+  'modal.action': 'Действие',
+  'modal.priority': 'Приоритет',
+  'modal.matchType': 'Тип совпадения',
+  'modal.active': 'Активен',
+  'modal.notes': 'Заметки',
+  'modal.save': 'Сохранить',
+  'modal.cancel': 'Отмена',
+  'modal.tester.title': 'Проверка',
+  'modal.tester.text': 'Текст новости',
+  'modal.tester.check': 'Проверить совпадение',
+  'modal.tester.match': 'совпадает',
+  'modal.tester.noMatch': 'не совпадает',
+
+  // Settings
+  'settings.title': 'Настройки',
+  'settings.defaultAction': 'Действие по умолчанию',
+  'settings.save': 'Сохранить',
+
+  'common.ok': 'ОК',
+  'common.cancel': 'Отмена',
 };
 
 const en: Dict = {
@@ -47,6 +105,8 @@ const en: Dict = {
   'menu.language': 'Language',
   'menu.language.ru': 'Русский',
   'menu.language.en': 'English',
+  'menu.filters': 'Filters',
+  'menu.settings': 'Settings',
 
   'news.title': 'Last News',
 
@@ -67,6 +127,62 @@ const en: Dict = {
   'edit.item.save': 'Save',
   'edit.item.cancel': 'Cancel',
   'common.back': 'Back',
+
+  // Filters
+  'filters.title': 'Filters',
+  'filters.add': 'Add',
+  'filters.search': 'Search by keyword',
+  'filters.action': 'Action',
+  'filters.action.publish': 'publish',
+  'filters.action.reject': 'reject',
+  'filters.action.moderation': 'moderation',
+  'filters.action.all': 'All',
+  'filters.activeOnly': 'Only active',
+  'filters.columns.keyword': 'Keyword',
+  'filters.columns.action': 'Action',
+  'filters.columns.priority': 'Priority',
+  'filters.columns.match': 'Match',
+  'filters.columns.active': 'Active',
+  'filters.columns.updated': 'Updated',
+  'filters.columns.actions': 'Actions',
+  'filters.match.substring': 'substring',
+  'filters.match.regex': 'regex',
+  'filters.edit': 'Edit',
+  'filters.delete': 'Delete',
+  'filters.bulk.activate': 'Activate',
+  'filters.bulk.deactivate': 'Deactivate',
+  'filters.bulk.delete': 'Delete',
+  'filters.confirmDelete': 'Delete filter?',
+  'filters.saved': 'Saved',
+  'filters.validation.keyword': 'Keyword is required (min 2 chars)',
+  'filters.validation.priority': 'Priority 1…1000',
+  'filters.validation.duplicate': 'Duplicate active filter (keyword, matchType)',
+  'filters.validation.regex': 'Invalid regular expression',
+
+  // Modal
+  'modal.title.add': 'Add filter',
+  'modal.title.edit': 'Edit filter',
+  'modal.keyword': 'Keyword',
+  'modal.action': 'Action',
+  'modal.priority': 'Priority',
+  'modal.matchType': 'Match type',
+  'modal.active': 'Active',
+  'modal.notes': 'Notes',
+  'modal.save': 'Save',
+  'modal.cancel': 'Cancel',
+  'modal.tester.title': 'Tester',
+  'modal.tester.text': 'News text',
+  'modal.tester.check': 'Check match',
+  'modal.tester.match': 'match',
+  'modal.tester.noMatch': 'no match',
+
+  // Settings
+  'settings.title': 'Settings',
+  'settings.defaultAction': 'Default action',
+  'settings.save': 'Save',
+
+  'common.ok': 'OK',
+  'common.cancel': 'Cancel',
 };
 
 const DICTS: Record<Lang, Dict> = { ru, en };
