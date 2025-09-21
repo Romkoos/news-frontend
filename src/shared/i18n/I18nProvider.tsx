@@ -16,9 +16,25 @@ const ru: Dict = {
   'menu.language.ru': 'Русский',
   'menu.language.en': 'English',
   'menu.filters': 'Фильтры',
+  'menu.moderation': 'Модерация',
   'menu.settings': 'Настройки',
 
   'news.title': 'Последние новости',
+
+    // Moderation
+    'moderation.title': 'Модерация',
+    'moderation.search': 'Поиск по тексту',
+    'moderation.refresh': 'Обновить',
+    'moderation.auto': 'Автообновление',
+    'moderation.empty': 'Нет новостей на модерации',
+    'moderation.approve': 'Опубликовать',
+    'moderation.reject': 'Отклонить',
+    'moderation.confirm.approve': 'Опубликовать?',
+    'moderation.confirm.reject': 'Отклонить и удалить?',
+    'moderation.toast.approved': 'Опубликовано',
+    'moderation.toast.rejected': 'Отклонено',
+    'moderation.details.openFilter': 'Открыть фильтр',
+    'moderation.found': 'Найдено {count}',
 
   'notif.copiedTitle': 'Скопировано в буфер обмена!',
   'notif.copiedDesc': 'Тексты новостей скопированы в буфер обмена.',
@@ -97,6 +113,7 @@ const ru: Dict = {
 
   'common.ok': 'ОК',
   'common.cancel': 'Отмена',
+  'common.unknown': 'неизвестно',
 };
 
 const en: Dict = {
@@ -110,9 +127,25 @@ const en: Dict = {
   'menu.language.ru': 'Русский',
   'menu.language.en': 'English',
   'menu.filters': 'Filters',
+  'menu.moderation': 'Moderation',
   'menu.settings': 'Settings',
 
   'news.title': 'Last News',
+
+    // Moderation
+    'moderation.title': 'Moderation',
+    'moderation.search': 'Search in text',
+    'moderation.refresh': 'Refresh',
+    'moderation.auto': 'Auto-refresh',
+    'moderation.empty': 'No items for moderation',
+    'moderation.approve': 'Approve',
+    'moderation.reject': 'Reject',
+    'moderation.confirm.approve': 'Publish?',
+    'moderation.confirm.reject': 'Reject and delete?',
+    'moderation.toast.approved': 'Approved',
+    'moderation.toast.rejected': 'Rejected',
+    'moderation.details.openFilter': 'Open filter',
+    'moderation.found': 'Found {count}',
 
   'notif.copiedTitle': 'Copied to clipboard!',
   'notif.copiedDesc': 'The news texts have been copied to your clipboard.',

@@ -8,12 +8,13 @@ import EditDigest from '../pages/edit-digest/ui/EditDigest';
 import { useI18n } from '../shared/i18n/I18nProvider';
 import FiltersPage from '../pages/filters/ui/FiltersPage';
 import SettingsPage from '../pages/settings/ui/SettingsPage';
+import ModerationPage from '../pages/moderation/ui/ModerationPage';
 
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
-  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'settings'>('news');
+  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'moderation' | 'settings'>('news');
 
   if (loading) {
     return (
@@ -102,6 +103,17 @@ export default function App() {
               href={'#'}
               onClick={(e) => {
                 e.preventDefault();
+                setPage('moderation');
+                setMenuOpen(false);
+              }}
+            >
+              {t('menu.moderation')}
+            </a>
+
+            <a
+              href={'#'}
+              onClick={(e) => {
+                e.preventDefault();
                 setPage('settings');
                 setMenuOpen(false);
               }}
@@ -142,6 +154,16 @@ export default function App() {
         )}
         {page === 'filters' && (
           <FiltersPage />
+        )}
+        {page === 'moderation' && (
+          <ModerationPage onOpenFilter={(id) => {
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.set('highlight', id);
+              window.history.replaceState({}, '', url.toString());
+            } catch (e) { void e; }
+            setPage('filters');
+          }} />
         )}
         {page === 'settings' && (
           <SettingsPage />
