@@ -6,11 +6,11 @@ import { approveModeration, getModeration, rejectModeration } from '../../../ent
 import { getFilters } from '../../../entities/filters/api/storage';
 import type { Filter } from '../../../entities/filters/model/types';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
-import RegexViewer from "../../../shared/regex/RegexViewer.tsx";
+import { highlightMatches } from '../../../shared/regex/highlight';
 
 const { Title, Paragraph, Text } = Typography;
 
-type FilterInfo = Pick<Filter, 'keyword' | 'action' | 'priority'>;
+type FilterInfo = Pick<Filter, 'keyword' | 'action' | 'priority' | 'matchType'>;
 
 // Simple module cache for filters
 let FILTERS_CACHE: Map<string, FilterInfo> | null = null;
@@ -36,7 +36,7 @@ function useFiltersMap(): [Map<string, FilterInfo> | null, boolean] {
         }
         const list = await getFilters();
         const next = new Map<string, FilterInfo>();
-        list.forEach(f => next.set(f.id, { keyword: f.keyword, action: f.action, priority: f.priority }));
+        list.forEach(f => next.set(f.id, { keyword: f.keyword, action: f.action, priority: f.priority, matchType: f.matchType }));
         FILTERS_CACHE = next;
         FILTERS_CACHE_TIME = now;
         if (mounted) {
@@ -174,15 +174,20 @@ export default function ModerationPage({ onOpenFilter }: ModerationPageProps) {
     });
   }
 
-  function renderFilterTag(filterId: string) {
-    const info = filtersMap?.get(filterId);
-    if (info) {
-      return (
-        <RegexViewer input={info.keyword} compact maxVisible={6} showModeSwitch={false} showCopy={false} />
-      );
-    }
-    return <Tag><Text type="secondary">({t('common.unknown')})</Text></Tag>;
+  function escapeRegExp(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&');
   }
+
+  function highlightByFilter(text: string, filterId: string) {
+    const info = filtersMap?.get(filterId);
+    if (!info || !info.keyword) return text;
+    if ((info.matchType ?? 'substring') === 'regex') {
+      return highlightMatches(text, info.keyword).nodes;
+    }
+    const pattern = `/${escapeRegExp(info.keyword)}/g`;
+    return highlightMatches(text, pattern).nodes;
+  }
+
 
   const foundCount = filtered.length;
 
@@ -252,14 +257,13 @@ export default function ModerationPage({ onOpenFilter }: ModerationPageProps) {
                 {filtered.map(item => (
                   <Card key={item.id} size="small" onClick={() => openDetails(item)} >
                       <Flex justify={'space-between'} style={{ marginBottom: 8 }}>
-                          {renderFilterTag(item.filterId)}
                           <Tag color="cyan">{formatDate(item.createdAt)}</Tag>
                       </Flex>
                     <Flex gap={8} align="flex-start" justify="space-around" wrap>
 
                       <div style={{ flex: 1, minWidth: 220 }}>
                         <Paragraph ellipsis={{ rows: isSmall ? 6 : 8 }} style={{ marginBottom: 4 }} dir="rtl">
-                          {item.textHe}
+                          {highlightByFilter(item.textHe, item.filterId)}
                         </Paragraph>
 
                         {isSmall && (
@@ -302,7 +306,8 @@ export default function ModerationPage({ onOpenFilter }: ModerationPageProps) {
       >
         {selected && (
           <Flex vertical gap={12}>
-            <Paragraph copyable style={{ whiteSpace: 'pre-wrap' }} dir="rtl">{selected.textHe}</Paragraph>
+            <Tag color="cyan">{formatDate(selected.createdAt)}</Tag>
+            <Paragraph copyable style={{ whiteSpace: 'pre-wrap' }} dir="rtl">{highlightByFilter(selected.textHe, selected.filterId)}</Paragraph>
             {selected.media && (
               isVideo(selected.media) ? (
                 <video src={selected.media} controls style={{ maxWidth: '100%', maxHeight: 320 }} />
@@ -310,25 +315,7 @@ export default function ModerationPage({ onOpenFilter }: ModerationPageProps) {
                 <img src={selected.media} alt="media" style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain' }} />
               )
             )}
-            <div>
-              {renderFilterTag(selected.filterId)}
-              {/* Open filters page link */}
-              <Button type="link" onClick={() => {
-                if (selected) {
-                  try {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('highlight', selected.filterId);
-                    window.history.replaceState({}, '', url.toString());
-                  } catch (e) {
-                    // ignore URL update errors in environments without window
-                    void e;
-                  }
-                  if (onOpenFilter) onOpenFilter(selected.filterId);
-                  setDrawerOpen(false);
-                }
-              }}>{t('moderation.details.openFilter')}</Button>
-            </div>
-            <Tag color="cyan">{formatDate(selected.createdAt)}</Tag>
+
             {isSmall ? (
               <Space>
                 <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(selected.id)}>
