@@ -56,7 +56,7 @@ function useFiltersMap(): [Map<string, FilterInfo> | null, boolean] {
 
 export interface ModerationPageProps { onOpenFilter?: (filterId: string) => void }
 
-export default function ModerationPage({ onOpenFilter }: ModerationPageProps) {
+export default function ModerationPage() {
   const { t, lang } = useI18n();
   const [items, setItems] = useState<ModerationItem[]>([]);
   const [loading, setLoading] = useState(false);

@@ -156,14 +156,7 @@ export default function App() {
           <FiltersPage />
         )}
         {page === 'moderation' && (
-          <ModerationPage onOpenFilter={(id) => {
-            try {
-              const url = new URL(window.location.href);
-              url.searchParams.set('highlight', id);
-              window.history.replaceState({}, '', url.toString());
-            } catch (e) { void e; }
-            setPage('filters');
-          }} />
+          <ModerationPage  />
         )}
         {page === 'settings' && (
           <SettingsPage />
