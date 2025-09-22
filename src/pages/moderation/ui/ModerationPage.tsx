@@ -6,6 +6,7 @@ import { approveModeration, getModeration, rejectModeration } from '../../../ent
 import { getFilters } from '../../../entities/filters/api/storage';
 import type { Filter } from '../../../entities/filters/model/types';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
+import { LS_KEYS, usePersistentState } from '../../../shared/storage/persist';
 import { highlightMatches } from '../../../shared/regex/highlight';
 
 const { Title, Paragraph, Text } = Typography;
@@ -62,7 +63,7 @@ export default function ModerationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [auto, setAuto] = useState(false);
+  const [auto, setAuto] = usePersistentState<boolean>(LS_KEYS.moderationAuto, false);
   const [filtersMap] = useFiltersMap();
   const timerRef = useRef<number | null>(null);
 

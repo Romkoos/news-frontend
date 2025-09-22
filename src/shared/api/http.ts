@@ -1,5 +1,6 @@
 import { getApiBase } from './config';
 import { isErrorWithMessage } from '../lib/isErrorWithMessage';
+import { lsGet, lsSet, lsRemove } from '../storage/persist';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -14,27 +15,15 @@ export type HttpOptions = {
 const TOKEN_KEY = 'auth_token';
 
 export function getToken(): string | null {
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
+  return lsGet(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  try {
-    localStorage.setItem(TOKEN_KEY, token);
-  } catch {
-    // ignore
-  }
+  lsSet(TOKEN_KEY, token);
 }
 
 export function clearToken(): void {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    // ignore
-  }
+  lsRemove(TOKEN_KEY);
 }
 
 export async function http<T>(path: string, options: HttpOptions = {}): Promise<T> {

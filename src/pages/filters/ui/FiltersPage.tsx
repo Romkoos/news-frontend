@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Flex, Input, Modal, Select, Space, Switch, Typography, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useI18n } from '../../../shared/i18n/I18nProvider';
+import { LS_KEYS, usePersistentState } from '../../../shared/storage/persist';
 import type { Filter, FilterAction } from '../../../entities/filters/model/types';
 import { deleteFilter, getFilters, updateFilter } from '../../../entities/filters/api/storage';
 import { mapFilterError } from '../../../entities/filters/lib/mapFilterError';
@@ -14,8 +15,8 @@ export default function FiltersPage() {
   const { t } = useI18n();
   const [items, setItems] = useState<Filter[]>([]);
   const [search, setSearch] = useState('');
-  const [actionFilter, setActionFilter] = useState<'all' | FilterAction>('all');
-  const [onlyActive, setOnlyActive] = useState<boolean>(false);
+  const [actionFilter, setActionFilter] = usePersistentState<'all' | FilterAction>(LS_KEYS.filtersAction, 'all');
+  const [onlyActive, setOnlyActive] = usePersistentState<boolean>(LS_KEYS.filtersOnlyActive, false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Filter | undefined>(undefined);
   const [modal, contextHolder] = Modal.useModal();

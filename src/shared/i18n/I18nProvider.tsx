@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { lsGet, lsSet } from '../storage/persist';
 
 export type Lang = 'ru' | 'en';
 
@@ -240,16 +241,12 @@ const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
-    if (typeof window === 'undefined') return 'ru';
-    const saved = window.localStorage.getItem(LS_KEY);
+    const saved = lsGet(LS_KEY);
     return (saved === 'en' || saved === 'ru') ? (saved as Lang) : 'ru';
-    
   });
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LS_KEY, lang);
-    }
+    lsSet(LS_KEY, lang);
   }, [lang]);
 
   const setLang = useCallback((l: Lang) => setLangState(l), []);
