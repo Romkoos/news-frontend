@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Drawer, Empty, Flex, Input, Popconfirm, Space, Spin, Switch, Tag, Typography, message } from 'antd';
+import { Button, Card, Empty, Flex, Input, Popconfirm, Space, Spin, Switch, Tag, Typography, message } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ModerationItem } from '../../../entities/moderation/model/types';
 import { approveModeration, getModeration, rejectModeration } from '../../../entities/moderation/api';
@@ -63,8 +63,6 @@ export default function ModerationPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [auto, setAuto] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selected, setSelected] = useState<ModerationItem | null>(null);
   const [filtersMap] = useFiltersMap();
   const timerRef = useRef<number | null>(null);
 
@@ -123,10 +121,6 @@ export default function ModerationPage() {
     }
   }
 
-  function openDetails(item: ModerationItem) {
-    setSelected(item);
-    setDrawerOpen(true);
-  }
 
   async function handleApprove(id: string) {
     // Optimistic removal
@@ -141,11 +135,6 @@ export default function ModerationPage() {
           message.error(String(e));
           // revert
           setItems(snapshot);
-        } finally {
-          if (selected && selected.id === id) {
-            setDrawerOpen(false);
-            setSelected(null);
-          }
         }
       })();
       return next;
@@ -163,11 +152,6 @@ export default function ModerationPage() {
         } catch (e: unknown) {
           message.error(String(e));
           setItems(snapshot);
-        } finally {
-          if (selected && selected.id === id) {
-            setDrawerOpen(false);
-            setSelected(null);
-          }
         }
       })();
       return next;
@@ -255,14 +239,20 @@ export default function ModerationPage() {
             ) : (
               <Flex vertical gap={8}>
                 {filtered.map(item => (
-                  <Card key={item.id} size="small" onClick={() => openDetails(item)} >
+                  <Card key={item.id} size="small">
                       <Flex justify={'space-between'} style={{ marginBottom: 8 }}>
                           <Tag color="cyan">{formatDate(item.createdAt)}</Tag>
                       </Flex>
                     <Flex gap={8} align="flex-start" justify="space-around" wrap>
-
+                        {item.media && (
+                            isVideo(item.media) ? (
+                                <video src={item.media} controls style={{ width: '100%' }} />
+                            ) : (
+                                <img src={item.media} alt="media" style={{ width: '100%', objectFit: 'contain' }} />
+                            )
+                        )}
                       <div style={{ flex: 1, minWidth: 220 }}>
-                        <Paragraph ellipsis={{ rows: isSmall ? 6 : 8 }} style={{ marginBottom: 4 }} dir="rtl">
+                        <Paragraph copyable={{ text: item.textHe }} ellipsis={{ rows: isSmall ? 6 : 8 }} style={{ marginBottom: 4, whiteSpace: 'pre-wrap' }} dir="rtl">
                           {highlightByFilter(item.textHe, item.filterId)}
                         </Paragraph>
 
@@ -298,46 +288,6 @@ export default function ModerationPage() {
         )}
       </Card>
 
-      <Drawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        width={Math.min(typeof window !== 'undefined' ? window.innerWidth - 32 : 720, 720)}
-        title={t('moderation.title')}
-      >
-        {selected && (
-          <Flex vertical gap={12}>
-            <Tag color="cyan">{formatDate(selected.createdAt)}</Tag>
-            <Paragraph copyable style={{ whiteSpace: 'pre-wrap' }} dir="rtl">{highlightByFilter(selected.textHe, selected.filterId)}</Paragraph>
-            {selected.media && (
-              isVideo(selected.media) ? (
-                <video src={selected.media} controls style={{ maxWidth: '100%', maxHeight: 320 }} />
-              ) : (
-                <img src={selected.media} alt="media" style={{ maxWidth: '100%', maxHeight: 320, objectFit: 'contain' }} />
-              )
-            )}
-
-            {isSmall ? (
-              <Space>
-                <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(selected.id)}>
-                  <Button type="primary">{t('moderation.approve')}</Button>
-                </Popconfirm>
-                <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(selected.id)}>
-                  <Button danger>{t('moderation.reject')}</Button>
-                </Popconfirm>
-              </Space>
-            ) : (
-              <Space>
-                <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(selected.id)}>
-                  <Button type="primary">{t('moderation.approve')}</Button>
-                </Popconfirm>
-                <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(selected.id)}>
-                  <Button danger>{t('moderation.reject')}</Button>
-                </Popconfirm>
-              </Space>
-            )}
-          </Flex>
-        )}
-      </Drawer>
     </Flex>
   );
 }
