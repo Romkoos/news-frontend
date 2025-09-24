@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { getStats24h } from '../../../entities/statistics/api';
+import {getHiddenStats24h, getStats24h} from '../../../entities/statistics/api';
 
 // Register Chart.js components once per module
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTitle, Tooltip, Legend);
@@ -53,16 +53,22 @@ export default function StatisticsPage() {
   const labels = useMemo(() => generateHourlyLabels(24), []);
 
   const [series, setSeries] = useState<number[] | null>(null);
+  const [hiddenSeries, setHiddenSeries] = useState<number[] | null>(null);
 
   useEffect(() => {
     let aborted = false;
     getStats24h()
       .then(arr => { if (!aborted) setSeries(arr); })
       .catch(() => { /* ignore */ });
+    getHiddenStats24h()
+        .then(arr => { if (!aborted) setHiddenSeries(arr); })
+        .catch(() => { /* ignore */ });
     return () => { aborted = true; };
+
   }, []);
 
   const series24 = useMemo(() => alignSeries(series, labels.length), [series, labels]);
+  const hiddenSeries24 = useMemo(() => alignSeries(hiddenSeries, labels.length), [hiddenSeries, labels]);
 
   const options = useMemo(() => ({
     responsive: true,
@@ -78,8 +84,8 @@ export default function StatisticsPage() {
       },
     },
     plugins: {
-      legend: { display: !isSmall, position: 'top' as const },
-      title: { display: true, text: t('statistics.title') + ' 24h' },
+      legend: { display: true, position: 'top' as const },
+      title: { display: true, text: t('statistics.title') },
       tooltip: { mode: 'nearest' as const, intersect: true },
     },
     interaction: { intersect: true, mode: 'nearest' as const },
@@ -102,14 +108,23 @@ export default function StatisticsPage() {
     labels,
     datasets: [
       {
-        label: '24h',
+        label: t('statistics.legend.published'),
         data: series24,
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.3)',
         tension: 0.25,
+      },
+      {
+        label: t('statistics.legend.filtered'),
+        data: hiddenSeries24,
+        borderColor: '#9b59b6',
+        backgroundColor: 'rgba(155, 89, 182, 0.3)',
+        tension: 0.25,
       }
     ],
-  }), [labels, series24]);
+  }), [labels, series24, hiddenSeries24, t]);
+
+    console.log('hiddenSeries', hiddenSeries)
 
   return (
     <div style={{ padding: 16 }}>

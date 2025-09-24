@@ -24,8 +24,10 @@ const ru: Dict = {
   'news.title': 'Последние новости',
 
     // Statistics
-    'statistics.title': 'Статистика',
+    'statistics.title': 'Публикации за 24 часа',
     'statistics.description': 'Раздел статистики. В разработке.',
+    'statistics.legend.published': 'Опубликовано',
+    'statistics.legend.filtered': 'Отфильтровано',
 
     // Moderation
     'moderation.title': 'Модерация',
@@ -140,8 +142,10 @@ const en: Dict = {
   'news.title': 'Last News',
 
     // Statistics
-    'statistics.title': 'Statistics',
+    'statistics.title': 'Published in the last 24 hours',
     'statistics.description': 'Statistics section. Coming soon.',
+    'statistics.legend.published': 'Published',
+    'statistics.legend.filtered': 'Filtered',
 
     // Moderation
     'moderation.title': 'Moderation',
