@@ -27,7 +27,10 @@ const ru: Dict = {
     'statistics.title': 'Публикации за 24 часа',
     'statistics.description': 'Раздел статистики. В разработке.',
     'statistics.legend.published': 'Опубликовано',
-    'statistics.legend.filtered': 'Отфильтровано',
+  'statistics.legend.filtered': 'Отфильтровано',
+  'statistics.legend.rejected': 'Отклонено',
+  'statistics.legend.moderated': 'Одобрено',
+  'statistics.title.last3days': 'Публикации за 3 дня',
 
     // Moderation
     'moderation.title': 'Модерация',
@@ -145,7 +148,10 @@ const en: Dict = {
     'statistics.title': 'Published in the last 24 hours',
     'statistics.description': 'Statistics section. Coming soon.',
     'statistics.legend.published': 'Published',
-    'statistics.legend.filtered': 'Filtered',
+  'statistics.legend.filtered': 'Filtered',
+  'statistics.legend.rejected': 'Rejected',
+  'statistics.legend.moderated': 'Approved',
+  'statistics.title.last3days': 'Published in the last 3 days',
 
     // Moderation
     'moderation.title': 'Moderation',
