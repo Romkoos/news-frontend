@@ -18,9 +18,14 @@ const ru: Dict = {
   'menu.language.en': 'English',
   'menu.filters': 'Фильтры',
   'menu.moderation': 'Модерация',
+  'menu.statistics': 'Статистика',
   'menu.settings': 'Настройки',
 
   'news.title': 'Последние новости',
+
+    // Statistics
+    'statistics.title': 'Статистика',
+    'statistics.description': 'Раздел статистики. В разработке.',
 
     // Moderation
     'moderation.title': 'Модерация',
@@ -129,9 +134,14 @@ const en: Dict = {
   'menu.language.en': 'English',
   'menu.filters': 'Filters',
   'menu.moderation': 'Moderation',
+  'menu.statistics': 'Statistics',
   'menu.settings': 'Settings',
 
   'news.title': 'Last News',
+
+    // Statistics
+    'statistics.title': 'Statistics',
+    'statistics.description': 'Statistics section. Coming soon.',
 
     // Moderation
     'moderation.title': 'Moderation',

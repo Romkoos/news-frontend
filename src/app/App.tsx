@@ -9,12 +9,13 @@ import { useI18n } from '../shared/i18n/I18nProvider';
 import FiltersPage from '../pages/filters/ui/FiltersPage';
 import SettingsPage from '../pages/settings/ui/SettingsPage';
 import ModerationPage from '../pages/moderation/ui/ModerationPage';
+import StatisticsPage from '../pages/statistics/ui/StatisticsPage';
 
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
-  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'moderation' | 'settings'>('news');
+  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'moderation' | 'statistics' | 'settings'>('news');
 
   if (loading) {
     return (
@@ -114,6 +115,17 @@ export default function App() {
               href={'#'}
               onClick={(e) => {
                 e.preventDefault();
+                setPage('statistics');
+                setMenuOpen(false);
+              }}
+            >
+              {t('menu.statistics')}
+            </a>
+
+            <a
+              href={'#'}
+              onClick={(e) => {
+                e.preventDefault();
                 setPage('settings');
                 setMenuOpen(false);
               }}
@@ -157,6 +169,9 @@ export default function App() {
         )}
         {page === 'moderation' && (
           <ModerationPage  />
+        )}
+        {page === 'statistics' && (
+          <StatisticsPage />
         )}
         {page === 'settings' && (
           <SettingsPage />

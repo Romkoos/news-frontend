@@ -35,8 +35,6 @@ export default function NewsTodayPage({ onOpenEdit }: NewsTodayPageProps) {
     try {
       const data = await fetchToday();
       setItems(data);
-      // eslint-disable-next-line no-console
-      console.log(data);
     } catch (e: unknown) {
       if (isErrorWithMessage(e)) {
         setErr(e.message);
