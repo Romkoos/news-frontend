@@ -192,7 +192,7 @@ export default function ModerationPage() {
               suffix={<span style={{ color: '#8c8c8c' }}>{t('moderation.found', { count: foundCount })}</span>}
             />
             <Flex align="center" justify="space-between" wrap>
-              <Button size="small" icon={<ReloadOutlined />} onClick={() => void load()}>{t('moderation.refresh')}</Button>
+              <Button size="small" icon={<ReloadOutlined />} loading={loading} onClick={() => void load()}>{t('moderation.refresh')}</Button>
               <Space>
                 <Text>{t('moderation.auto')}</Text>
                 <Switch checked={auto} onChange={setAuto} />
@@ -211,7 +211,7 @@ export default function ModerationPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 suffix={<span style={{ color: '#8c8c8c' }}>{t('moderation.found', { count: foundCount })}</span>}
               />
-              <Button icon={<ReloadOutlined />} onClick={() => void load()}>{t('moderation.refresh')}</Button>
+              <Button icon={<ReloadOutlined />} loading={loading} onClick={() => void load()}>{t('moderation.refresh')}</Button>
               <Space>
                 <Text>{t('moderation.auto')}</Text>
                 <Switch checked={auto} onChange={setAuto} />
@@ -222,7 +222,7 @@ export default function ModerationPage() {
       </div>
 
       <Card>
-        {loading ? (
+        {loading && items.length === 0 ? (
           <Flex align="center" justify="center" style={{ minHeight: 160 }}>
             <Spin />
           </Flex>
@@ -234,56 +234,69 @@ export default function ModerationPage() {
 
             {filtered.length === 0 ? (
               <Flex vertical align="center" justify="center" style={{ minHeight: 200, padding: 16 }}>
-                <Empty description={t('moderation.empty')} />
-                <Button style={{ marginTop: 12 }} onClick={() => void load()}>{t('moderation.refresh')}</Button>
+                {loading ? (
+                  <Spin />
+                ) : (
+                  <>
+                    <Empty description={t('moderation.empty')} />
+                    <Button style={{ marginTop: 12 }} onClick={() => void load()}>{t('moderation.refresh')}</Button>
+                  </>
+                )}
               </Flex>
             ) : (
-              <Flex vertical gap={8}>
-                {filtered.map(item => (
-                  <Card key={item.id} size="small">
-                      <Flex justify={'space-between'} style={{ marginBottom: 8 }}>
-                          <Tag color="cyan">{formatDate(item.createdAt)}</Tag>
-                      </Flex>
-                    <Flex gap={8} align="flex-start" justify="space-around" wrap>
-                        {item.media && (
-                            isVideo(item.media) ? (
-                                <video src={item.media} controls style={{ width: '100%' }} />
-                            ) : (
-                                <img src={item.media} alt="media" style={{ width: '100%', objectFit: 'contain' }} />
-                            )
-                        )}
-                      <div style={{ flex: 1, minWidth: 220 }}>
-                        <Paragraph copyable={{ text: item.textHe }} ellipsis={{ rows: isSmall ? 6 : 8 }} style={{ marginBottom: 4, whiteSpace: 'pre-wrap' }} dir="rtl">
-                          {highlightByFilter(item.textHe, item.filterId)}
-                        </Paragraph>
+              <div style={{ position: 'relative' }}>
+                {loading && (
+                  <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                    <Spin size="small" />
+                  </div>
+                )}
+                <Flex vertical gap={8}>
+                  {filtered.map(item => (
+                    <Card key={item.id} size="small">
+                        <Flex justify={'space-between'} style={{ marginBottom: 8 }}>
+                            <Tag color="cyan">{formatDate(item.createdAt)}</Tag>
+                        </Flex>
+                      <Flex gap={8} align="flex-start" justify="space-around" wrap>
+                          {item.media && (
+                              isVideo(item.media) ? (
+                                  <video src={item.media} controls style={{ width: '100%' }} />
+                              ) : (
+                                  <img src={item.media} alt="media" style={{ width: '100%', objectFit: 'contain' }} />
+                              )
+                          )}
+                        <div style={{ flex: 1, minWidth: 220 }}>
+                          <Paragraph copyable={{ text: item.textHe }} ellipsis={{ rows: isSmall ? 6 : 8 }} style={{ marginBottom: 4, whiteSpace: 'pre-wrap' }} dir="rtl">
+                            {highlightByFilter(item.textHe, item.filterId)}
+                          </Paragraph>
 
-                        {isSmall && (
-                          <div style={{ marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
-                            <Space>
-                              <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(item.id)}>
-                                <Button type="primary">{t('moderation.approve')}</Button>
-                              </Popconfirm>
-                              <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(item.id)}>
-                                <Button danger>{t('moderation.reject')}</Button>
-                              </Popconfirm>
-                            </Space>
-                          </div>
+                          {isSmall && (
+                            <div style={{ marginTop: 8 }} onClick={(e) => e.stopPropagation()}>
+                              <Space>
+                                <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(item.id)}>
+                                  <Button type="primary">{t('moderation.approve')}</Button>
+                                </Popconfirm>
+                                <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(item.id)}>
+                                  <Button danger>{t('moderation.reject')}</Button>
+                                </Popconfirm>
+                              </Space>
+                            </div>
+                          )}
+                        </div>
+                        {!isSmall && (
+                          <Space onClick={(e) => e.stopPropagation()}>
+                            <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(item.id)}>
+                              <Button type="primary">{t('moderation.approve')}</Button>
+                            </Popconfirm>
+                            <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(item.id)}>
+                              <Button danger>{t('moderation.reject')}</Button>
+                            </Popconfirm>
+                          </Space>
                         )}
-                      </div>
-                      {!isSmall && (
-                        <Space onClick={(e) => e.stopPropagation()}>
-                          <Popconfirm title={t('moderation.confirm.approve')} onConfirm={() => void handleApprove(item.id)}>
-                            <Button type="primary">{t('moderation.approve')}</Button>
-                          </Popconfirm>
-                          <Popconfirm title={t('moderation.confirm.reject')} onConfirm={() => void handleReject(item.id)}>
-                            <Button danger>{t('moderation.reject')}</Button>
-                          </Popconfirm>
-                        </Space>
-                      )}
-                    </Flex>
-                  </Card>
-                ))}
-              </Flex>
+                      </Flex>
+                    </Card>
+                  ))}
+                </Flex>
+              </div>
             )}
           </>
         )}
