@@ -1,5 +1,6 @@
 import HourlyStatsChart from '../../../widgets/statistics/ui/HourlyStatsChart';
 import ActivityStatsChart from "../../../widgets/statistics/ui/ActivityStatsChart.tsx";
+import FiltersPieChart from '../../../widgets/statistics/ui/FiltersPieChart';
 
 export type ActivityPeriod = '24h' | '3d' | '7d' | '1m' | '3m';
 
@@ -10,6 +11,7 @@ export default function StatisticsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <HourlyStatsChart />
         <ActivityStatsChart period={'7d'} />
+        <FiltersPieChart period={'7d'} />
       </div>
     </div>
   );

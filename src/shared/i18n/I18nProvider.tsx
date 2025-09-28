@@ -31,6 +31,9 @@ const ru: Dict = {
   'statistics.legend.rejected': 'Отклонено',
   'statistics.legend.moderated': 'Одобрено',
   'statistics.title.last3days': 'Публикации за 3 дня',
+  'statistics.filtersPie.title': 'Фильтры (последний день)',
+  'statistics.filtersPie.legend': 'Совпадения по фильтрам',
+  'statistics.filtersPie.empty': 'Нет данных для отображения',
 
     // Moderation
     'moderation.title': 'Модерация',
@@ -152,6 +155,9 @@ const en: Dict = {
   'statistics.legend.rejected': 'Rejected',
   'statistics.legend.moderated': 'Approved',
   'statistics.title.last3days': 'Published in the last 3 days',
+  'statistics.filtersPie.title': 'Filters (last day)',
+  'statistics.filtersPie.legend': 'Filter matches',
+  'statistics.filtersPie.empty': 'No data to display',
 
     // Moderation
     'moderation.title': 'Moderation',
