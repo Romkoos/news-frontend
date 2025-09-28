@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Drawer, Flex, Select, Spin } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import LoginPage from '../pages/login/ui/LoginPage';
@@ -11,11 +11,40 @@ import SettingsPage from '../pages/settings/ui/SettingsPage';
 import ModerationPage from '../pages/moderation/ui/ModerationPage';
 import StatisticsPage from '../pages/statistics/ui/StatisticsPage';
 
+// Hash-based routing helpers
+export type PageKey = 'news' | 'edit' | 'filters' | 'moderation' | 'statistics' | 'settings';
+const pageToHash: Record<PageKey, string> = {
+  news: '#/news',
+  edit: '#/edit',
+  filters: '#/filters',
+  moderation: '#/moderation',
+  statistics: '#/statistics',
+  settings: '#/settings',
+};
+function hashToPage(hash: string): PageKey {
+  const normalized = hash || '#/statistics';
+  const match = (Object.entries(pageToHash) as [PageKey, string][])
+    .find(([, h]) => h === normalized);
+  return match?.[0] ?? 'statistics';
+}
+
 export default function App() {
   const { user, loading, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, lang, setLang } = useI18n();
-  const [page, setPage] = useState<'news' | 'edit' | 'filters' | 'moderation' | 'statistics' | 'settings'>('news');
+  const [page, setPage] = useState<PageKey>(() => hashToPage(window.location.hash));
+
+  useEffect(() => {
+    const applyFromHash = () => setPage(hashToPage(window.location.hash));
+    // Ensure default hash on first load
+    if (!window.location.hash) {
+      window.location.hash = pageToHash['statistics'];
+    }
+    window.addEventListener('hashchange', applyFromHash);
+    // Sync immediately
+    applyFromHash();
+    return () => window.removeEventListener('hashchange', applyFromHash);
+  }, []);
 
   if (loading) {
     return (
@@ -67,11 +96,17 @@ export default function App() {
         title={t('menu.title')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 12 }}>
-          <a
-            href={'#'}
-            onClick={(e) => {
-              e.preventDefault();
-              setPage('news');
+            <a
+                href={pageToHash['statistics']}
+                onClick={() => {
+                    setMenuOpen(false);
+                }}
+            >
+                {t('menu.statistics')}
+            </a>
+            <a
+            href={pageToHash['news']}
+            onClick={() => {
               setMenuOpen(false);
             }}
           >
@@ -79,10 +114,8 @@ export default function App() {
           </a>
 
             <a
-                href={'#'}
-                onClick={(e) => {
-                    e.preventDefault();
-                    setPage('edit');
+                href={pageToHash['edit']}
+                onClick={() => {
                     setMenuOpen(false);
                 }}
             >
@@ -90,10 +123,8 @@ export default function App() {
             </a>
 
             <a
-              href={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage('filters');
+              href={pageToHash['filters']}
+              onClick={() => {
                 setMenuOpen(false);
               }}
             >
@@ -101,10 +132,8 @@ export default function App() {
             </a>
 
             <a
-              href={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage('moderation');
+              href={pageToHash['moderation']}
+              onClick={() => {
                 setMenuOpen(false);
               }}
             >
@@ -112,21 +141,8 @@ export default function App() {
             </a>
 
             <a
-              href={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage('statistics');
-                setMenuOpen(false);
-              }}
-            >
-              {t('menu.statistics')}
-            </a>
-
-            <a
-              href={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage('settings');
+              href={pageToHash['settings']}
+              onClick={() => {
                 setMenuOpen(false);
               }}
             >
@@ -159,10 +175,10 @@ export default function App() {
       {/* Main content with top padding to avoid being under header */}
       <div style={{ paddingTop: 64 }}>
         {page === 'news' && (
-          <NewsTodayPage onOpenEdit={() => setPage('edit')} />
+          <NewsTodayPage onOpenEdit={() => { window.location.hash = pageToHash['edit']; }} />
         )}
         {page === 'edit' && (
-          <EditDigest onBack={() => setPage('news')} />
+          <EditDigest onBack={() => { window.location.hash = pageToHash['news']; }} />
         )}
         {page === 'filters' && (
           <FiltersPage />
