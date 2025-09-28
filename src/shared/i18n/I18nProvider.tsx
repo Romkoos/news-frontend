@@ -72,7 +72,7 @@ const ru: Dict = {
   'filters.action': 'Действие',
   'filters.action.publish': 'публиковать',
   'filters.action.reject': 'отклонить',
-  'filters.action.moderation': 'на модерацию',
+  'filters.action.moderation': 'модерация',
   'filters.action.all': 'Все',
   'filters.activeOnly': 'Только активные',
   'filters.columns.keyword': 'Ключевое слово',
